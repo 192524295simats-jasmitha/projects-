@@ -1,0 +1,150 @@
+from flask import Flask, render_template, request
+import sqlite3
+
+app = Flask(__name__)
+
+# ---------------- DATABASE ----------------
+
+def init_db():
+
+    conn = sqlite3.connect("bank.db")
+    cursor = conn.cursor()
+
+    # Accounts table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS accounts (
+        acc_no INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        username TEXT,
+        password TEXT,
+        balance INTEGER,
+        status TEXT
+    )
+    """)
+
+    # Transactions table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS transactions (
+        tid INTEGER PRIMARY KEY AUTOINCREMENT,
+        acc_no INTEGER,
+        type TEXT,
+        amount INTEGER
+    )
+    """)
+
+    conn.commit()
+    conn.close()
+
+init_db()
+
+# ---------------- SAMPLE ACCOUNT ----------------
+
+def insert_sample_data():
+
+    conn = sqlite3.connect("bank.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    INSERT INTO accounts
+    (name, username, password, balance, status)
+    VALUES
+    ('Jasmitha', 'jasmitha', '1234', 50000, 'Active')
+    """)
+
+    conn.commit()
+    conn.close()
+
+# Run only once
+try:
+    insert_sample_data()
+except:
+    pass
+
+# ---------------- HOME PAGE ----------------
+
+@app.route("/", methods=["GET", "POST"])
+def index():
+
+    message = ""
+
+    if request.method == "POST":
+
+        username = request.form["username"]
+        amount = int(request.form["amount"])
+
+        conn = sqlite3.connect("bank.db")
+        cursor = conn.cursor()
+
+        # Find account
+        cursor.execute(
+            "SELECT acc_no FROM accounts WHERE username=?",
+            (username,)
+        )
+
+        user = cursor.fetchone()
+
+        if user:
+
+            acc_no = user[0]
+
+            # Insert transaction
+            cursor.execute("""
+            INSERT INTO transactions
+            (acc_no, type, amount)
+            VALUES (?, ?, ?)
+            """, (acc_no, "Deposit", amount))
+
+            # Update balance
+            cursor.execute("""
+            UPDATE accounts
+            SET balance = balance + ?
+            WHERE acc_no = ?
+            """, (amount, acc_no))
+
+            conn.commit()
+
+            message = "Transaction Successful"
+
+        else:
+            message = "User Not Found"
+
+        conn.close()
+
+    return render_template("index.html", message=message)
+
+# ---------------- ACCOUNTS PAGE ----------------
+
+@app.route("/accounts")
+def accounts():
+
+    conn = sqlite3.connect("bank.db")
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM accounts")
+
+    data = cursor.fetchall()
+
+    conn.close()
+
+    return str(data)
+
+# ---------------- TRANSACTIONS PAGE ----------------
+
+@app.route("/transactions")
+def transactions():
+
+    conn = sqlite3.connect("bank.db")
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM transactions")
+
+    data = cursor.fetchall()
+
+    conn.close()
+
+    return str(data)
+
+# ---------------- RUN APP ----------------
+
+if __name__ == "__main__":
+    app.run(debug=True)

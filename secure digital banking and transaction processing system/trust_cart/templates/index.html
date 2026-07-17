@@ -1,0 +1,25 @@
+<form method="POST">
+
+    <input type="text"
+           name="username"
+           placeholder="Enter Username"
+           required>
+
+    <input type="number"
+           name="amount"
+           placeholder="Enter Amount"
+           required>
+
+    <button type="submit">
+        Process Transaction
+    </button>
+
+</form>
+
+{% if message %}
+
+<div class="result">
+    <h2>{{ message }}</h2>
+</div>
+
+{% endif %}
