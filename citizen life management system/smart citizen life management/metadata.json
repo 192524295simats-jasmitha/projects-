@@ -1,0 +1,6 @@
+{
+  "name": "Smart Citizen Life Management Cloud",
+  "description": "Unified cloud-native platform for personal, healthcare, educational, and digital document management with interactive architecture visualization.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
