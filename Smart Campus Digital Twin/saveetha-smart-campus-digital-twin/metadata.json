@@ -1,0 +1,6 @@
+{
+  "name": "Saveetha Smart Campus Digital Twin",
+  "description": "Interactive 3D Digital Twin platform for Saveetha Engineering College campus resource, facility, energy, parking, and operations management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
